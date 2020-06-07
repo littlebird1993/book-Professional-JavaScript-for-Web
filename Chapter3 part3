@@ -201,5 +201,123 @@ sayHi("Nicholas", "how are you today?");
 这个函数的输出结果是"Hello Nicholas,how are you today?"。 函数中定义中的命名参数name和message被用作了字符串拼接的两个操 作数，而结果最终通过警告框显示了出来。
 
 ECMAScript中的函数在定义时不必指定是否返回值。实际上，任何函 数在任何时候都可以通过return语句后跟要返回的值来实现返回值。 
+function sum(num1, num2) {
+  return num1 + num2;
+}
+这个sum()函数的作用是把两个值加起来返回一个结果。我们注意到， 除了return语句之外，没有任何声明表示该函数会返回一个值。调用 这个函数的示例代码如下：
+var result = sum(5, 10);
+这个函数会在执行完return语句之后停止并立即退出。因此，位于 return语句之后的任何代码都永远不会执行。例如：
+function sum(num1, num2) {
+  return num1 + num2;
+  alert("Hello world");    // 永远不会执行 
+}
+另外，return语句也可以不带有任何返回值。在这种情况下，函数在停止执行后将返回undefined值。这种用法一般用在需要提前停止函数执行而又不需要返回值的情况下。比如在下面这个例子中，就不会显示 警告框：
+function sayHi(name, message) {
+  return;
+  alert("Hello " + name + "," + message);    //永远不会调用
+}
+推荐的做法是要么让函数始终都返回一个值，要么永远都不要返 回值。否则，如果函数有时候返回值，有时候有不返回值，会给调试 代码带来不便。
+严格模式对函数有一些限制：
+·不能把函数命名为eval或arguments； 
+·不能把参数命名为eval或arguments；
+·不能出现两个命名参数同名的情况。
+如果发生以上情况，就会导致语法错误，代码无法执行。
 
 
+
+
+3.7.1　理解参数
+ECMAScript函数的参数与大多数其他语言中函数的参数有所不同。 
+ECMAScript函数不介意传递进来多少个参数，也不在乎传进来参数是什么数据类型。
+也就是说，即便你定义的函数只接收两个参数，在调用 这个函数时也未必一定要传递两个参数。可以传递一个、三个甚至不传 递参数，而解析器永远不会有什么怨言。
+之所以会这样，原因是 ECMAScript中的参数在内部是用一个数组来表示的。函数接收到的始 终都是这个数组，而不关心数组中包含哪些参数（如果有参数的话）。
+实际上，在函数体内可以通过arguments对象来访问这个参数数组，从而获取传递给函数的每一个参数。
+其实，arguments对象只是与数组类似（它并不是Array的实例），因为可以使用方括号语法访问它的每一个元素（即第一个元素 是arguments[0]，第二个元素是argumetns[1]，以此类推），使用length属性来确定传递进来多少个参数。
+在前面的例子中，sayHi() 函数的第一个参数的名字叫name，而该参数的值也可以通过访问 arguments[0]来获取。因此，那个函数也可以像下面这样重写，即不显式地使用命名参数：
+function sayHi() {
+  alert("Hello " + arguments[0] + "," + arguments[1]); 
+}
+这个重写后的函数中不包含命名的参数。虽然没有使用name和message标识符，但函数的功能依旧。这个事实说明了ECMAScript函数的一个 重要特点：命名的参数只提供便利，但不是必需的。
+另外，在命名参数方面，其他语言可能需要事先创建一个函数签名，而将来的调用必须与该签名一致。但在ECMAScript中，没有这些条条框框，解析器不会验证命名参数。//签名是啥？ https://developer.mozilla.org/zh-CN/docs/Glossary/Signature/Function
+
+通过访问arguments对象的length属性可以获知有多少个参数传递给了函数。下面这个函数会在每次被调用时，输出传入其中的参数个数：
+function howManyArgs() {    
+  alert(arguments.length); 
+}
+howManyArgs("string", 45);  //2 
+howManyArgs();              //0 
+howManyArgs(12);            //1
+由此可见，开
+发人员可以利用这一点让函数能够接收任意个参数并分别实现适当的功能。请看下面的例子：
+function doAdd() {    
+  if(arguments.length == 1) {        
+    alert(arguments[0] + 10);    
+  } else if (arguments.length == 2) {        
+    alert(arguments[0] + arguments[1]);    
+  } 
+}
+doAdd(10);         //20 
+doAdd(30, 20);     //50
+函数doAdd()会在只有一个参数的情况下给该参数加上10；如果是两个 参数，则将那个参数简单相加并返回结果。因此，doAdd(10)会返回 20，而doAdd(30,20)则返回50。虽然这个特性算不上完美的重载，但也足够弥补ECMAScript的这一缺憾了。 
+
+另一个与参数相关的重要方面，就是arguments对象可以与命名参数一 起使用，如下面的例子所示：
+function doAdd(num1, num2) {    
+  if(arguments.length == 1) {       
+    alert(num1 + 10);    
+  } else if (arguments.length == 2) {        
+    alert(arguments[0] + num2);    
+  } 
+}
+在重写后的这个doAdd()函数中，两个命名参数都与arguments对象一 起使用。由于num1的值与arguments[0]的值相同，因此它们可以互换 使用（当然，num2和arguments[1]也是如此）。 
+关于arguments的行为，还有一点比较有意思。那就是它的值永远与对应命名参数的值保持同步。例如：
+function doAdd(num1, num2) {
+  arguments[1] = 10; 
+  alert(arguments[0] + num2);
+}
+每次执行这个doAdd()函数都会重写第二个参数，将第二个参数的值修 改为10。因为arguments对象中的值会自动反映到对应的命名参数，所以修改arguments[1]，也就修改了num2，结果它们的值都会变成10。 
+不过，这并不是说读取这两个值会访问相同的内存空间；它们的内存空间是独立的，但它们的值会同步。
+但这种影响是单向的：修改命名参数不会改变arguments中对应的值。
+另外还要记住，如果只传入了一个参 数，那么为arguments[1]设置的值不会反应到命名参数中。这是因为arguments对象的长度是由传入的参数个数决定的，不是由定义函数时的命名参数的个数决定的。
+关于参数还要记住最后一点：没有传递值的命名参数将自动被赋予undefined值。这就跟定义了变量但又没有初始化一样。例如，如果只给doAdd()函数传递了一个参数，则num2中就会保存undefined值。
+
+严格模式对如何使用argumetns对象做出了一些限制。
+首先，像前面例子中那样的赋值会变得无效。也就是说即使把arguments[1]设置为10，num2的值仍然还是undefined。其次，重写arguments的值会导致语法错误（代码将不会执行）。
+*ECMAScript中的所有参数传递的都是值，不可能通过引用传递参数。
+
+
+
+3.7.2　没有重载
+ECMAScript函数不能像传统意义上那样实现重载。
+而在其他语言（如 Java）中，可以为一个函数编写两个定义，只要这两个定义的签名（接受的参数的类型和数量）不同即可。
+如前所述，ECMAScirpt函数没有签名，因为其参数是由包含零或多个值的数组来表示的。而没有函数签
+名，真正的重载是不可能做到的。
+如果在ECMAScript中定义了两个名字相同的函数，则该名字只属于后 定义的函数。请看下面的例子：
+function addSomeNumber(num){    
+    return num + 100; 
+}
+function addSomeNumber(num) {    
+   return num + 200; 
+}
+var result = addSomeNumber(100);    //300
+在此，函数addSomeNumber()被定义了两次。第一个版本给参数加 100，而第二个版本给参数加200。由于后定义的函数覆盖了先定义的函 数，因此当在最后一行代码中调用这个函数时，返回的结果就是300。
+如前所述，通过检查传入函数中参数的类型和数量并作出不同的反应，可以模仿方法的重载。
+
+
+
+
+3.8　小结
+JavaScript的核心语言特性在ECMA-262中是以名为ECMAScript的伪语言 的形式来定义的。ECMAScript中包含了所有基本的语法、操作符、数 据类型以及完成基本的计算任务所必需的对象，但没有对取得输入和产 生输出的机制作出规定。理解ECMAScript及其纷繁复杂的各种细节， 是理解其在Web浏览器中的实现——JavaScript的关键。目前大多数实现 所遵循的都是ECMA-262第3版，但很多也已经着手开始实现第5版了。 
+
+以下简要总结了ECMAscript中基本的要素。 
+·ECMAScript中的基本数据类型包括 Undefined、Null、Boolean、Number和String。 
+·与其他语言不同，ECMScript没有为整数和浮点数值分别定义不同 的数据类型，Number类型可用于表示所有数值。 ECMAScript中也有一种复杂的数据类型，即Object类型，该类型是这门语言中所有对象的基础类型。
+·严格模式为这门语言中容易出错的地方施加了限制。
+·ECMAScript提供了很多与C及其他类C语言中相同的基本操作符，包括算术操作符、布尔操作符、关系操作符、相等操作符及赋值操 作符等。
+·ECMAScript从其他语言中借鉴了很多流控制语句，例如if语 句、for语句和switch语句等。 
+
+ECMAScript中的函数与其他语言中的函数有诸多不同之处。 
+·无须指定函数的返回值，因为任何ECMAScript函数都可以在任何 时候返回任何值。
+·实际上，未指定返回值的函数返回的是一个特殊的undefined值。 
+·ECMAScript中也没有函数签名的概念，因为其函数参数是以一个
+·包含零或多个值的数组的形式传递的。
+·可以向ECMAScript函数传递任意数量的参数，并且可以通过 arguments对象来访问这些参数。 由于不存在函数签名的特性，ECMAScript函数不能重载。
