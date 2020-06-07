@@ -1,0 +1,127 @@
+3.6　语句
+ECMA-262规定了一组语句（也称为流控制语句）。从本质上看，语句 定义了ECMAScript中的主要语法，语句通常使用一或多个关键字来完 成给定任务。语句可以很简单，例如通知函数退出；也可以比较复杂， 例如指定重复执行某个命令的次数。
+
+
+
+3.6.1　if语句
+大多数编程语言中最为常用的一个语句就是if语句。以下是if语句的语法：
+if (condition) statement1 else statement2
+其中的condition（条件）可以是任意表达式；而且对这个表达式求值的 结果不一定是布尔值。ECMAScript会自动调用Boolean()转换函数将 这个表达式的结果转换为一个布尔值。如果对condition求值的结果 是true，则执行statement1（语句1），如果对condition求值的结果 是false，则执行statement2（语句2）。而且这两个语句既可以是一行 代码，也可以是一个代码块（以一对花括号括起来的多行代码）。
+另外，也可以像下面这样把整个if语句写在一行代码中：
+if (condition1) statement1 else if (condition2) statement2 else statement3
+但我们推荐的做法则是像下面这样：
+if (i > 25) {    
+  alert("Greater than 25."); 
+} else if (i < 0) {    
+  alert("Less than 0."); 
+} else {    
+  alert("Between 0 and 25, inclusive."); 
+}
+
+
+
+3.6.2　do-while语句
+do-while语句是一种后测试循环语句，即只有在循环体中的代码执行 之后，才会测试出口条件。换句话说，在对条件表达式求值之前，循环 体内的代码至少会被执行一次。以下是do-while语句的 语法：
+do {    
+  statement 
+} while (expression);
+像do-while这种后测试循环语句最常用于循环体中的代码至少要 被执行一次的情形。
+
+
+
+3.6.3　while语句
+while语句属于前测试循环语句，也就是说，在循环体内的代码被执行 之前，就会对出口条件求值。因引，循环体内的代码有可能永远不会被 执行。以下是while语句的语法：
+while(expression) statement
+
+
+
+3.6.4　for语句
+for语句也是一种前测试循环语句，但它具有在执行循环之前初始化变 量和定义循环后要执行的代码的能力。以下是for语句的语法：
+for (initialization; expression; post-loop-expression) statement，例子；
+var count = 10; 
+for (var i = 0; i < count; i++){    
+  alert(i); 
+}
+有必要指出的是，在for循环的变量初始化表达式中，也可以不使用var关键字。该变量的初始化可以在外部执行。
+使用while循环做不到的，使用for循环同样也做不到。也就是说，for 循环只是把与循环有关的代码集中在了一个位置。
+由于 ECMAScript中不存在块级作用域（第4章将进一步讨论这一点），因此 在循环内部定义的变量也可以在外部访问到，例如：
+var count = 10; 
+for (var i = 0; i < count; i++){   
+  alert(i); 
+}
+alert(i);    //10
+在这个例子中，会有一个警告框显示循环完成后变量i的值，这个值是 10。这是因为，即使i是在循环内部定义的一个变量，但在循环外部仍 然可以访问到它。
+此外，for语句中的初始化表达式、控制表达式和循环后表达式都是可选的。将这两个表达式全部省略，就会创建一个无限循环，例如：
+for (;;) {     // 无限循环 
+  doSomething(); 
+}
+而只给出控制表达式实际上就把for循环转换成了while循环，例如：
+var count = 10;
+var i = 0
+for (; i < count; ){    
+  alert(i);    
+  i++; 
+}
+由于for语句存在极大的灵活性，因此它也是ECMAScript中最常用的一个语句。
+
+
+
+
+3.6.5　for-in语句
+for-in语句是一种精准的迭代语句，可以用来枚举对象的属性。以下是for-in语句的语法：
+for (property in expression) statement
+下面是一个示例：
+for (var propName in window) {
+   document.write(propName); 
+}
+在这个例子中，我们使用for-in循环来显示了BOM中window对象的所 有属性。每次执行循环时，都会将window对象中存在的一个属性名赋 值给变量propName。这个过程会一直持续到对象中的所有属性都被枚 举一遍为止。
+与for语句类似，这里控制语句中的var操作符也不是必 需的。但是，为了保证使用局部变量，我们推荐上面例子中的这种做法。
+ECMAScript对象的属性没有顺序。因此，通过for-in循环输出的属性 名的顺序是不可预测的。具体来讲，所有属性都会被返回一次，但返回 的先后次序可能会因浏览器而异。
+但是，如果表示要迭代的对象的变量值为null或undefined，for-in 语句会抛出错误。ECMAScript 5更正了这一行为；对这种情况不再抛出 错误，而只是不执行循环体。为了保证最大限度的兼容性，建议在使 用for-in循环之前，先检测确认该对象的值不是null或undefined。
+
+
+
+
+3.6.6　label语句
+使用label语句可以在代码中添加标签，以便将来使用。以下是label 语句的语法：
+label: statement
+下面是一个示例：
+start: for (var i=0; i < count; i++) {
+  alert(i);
+}
+这个例子中定义的start标签可以在将来由break或continue语句引用。加标签的语句一般都要与for语句等循环语句配合使用：
+var num = 0;
+outermost:
+for(var i=0; i<10; i++){
+    for(var j=0; j<10; j++){
+        if(i === 5 && j === 5){
+            break outermost;
+        }
+        num++;
+    }
+}
+alert(num); //55
+在这个例子中，outermost表示外层的for循环语句。如果每个循环都正常执行10次，则num++语句就会执行100次。但内部循环的break语句带了一个参数：要返回的标签。添加这个标签结果将导致不仅会退出内部的for循环，而且也会退出外部的for循环。为此，当变量i和j都等于5时，num的值正好是55。
+同样，continue语句也可以像这样与label语句联用， 如下面的例子所示：
+var num = 0;
+outermost:
+for(var i=0; i<10; i++){
+    for(var j=0; j<10; j++){
+        if(i === 5 && j === 5){
+            continue outermost;
+        }
+        num++;
+    }
+}
+alert(num); //95
+在这种情况下，continue语句会强制继续执行循环——退出内部循 环，执行外部循环。当j是5时，continue语句执行，而这也就意味着 内部循环少执行了5次，因此num的结果是95。 
+虽然联用break、continue和label语句能够执行复杂的操作，但如果 使用过度，也会给调试带来麻烦。在此，我们建议如果使用label语 句，一定要使用描述性的标签，同时不要嵌套过多的循环。
+
+
+
+3.6.7　break和continue语句
+break和continue语句用于在循环中精确地控制代码的执行。其 中，break语句会立即退出循环，强制继续执行循环后面的语句。 而continue语句虽然也是立即退出循环，但退出循环后会从循环的顶部继续执行。
+
+
+
+3.6.8　with语句
